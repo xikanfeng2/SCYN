@@ -282,7 +282,9 @@ class SCYN:
         ref_path = os.path.join(out_dir, 'temp.ref.csv')
         gini_path = os.path.join(out_dir, 'temp.gini.csv')
         ploidy_path = os.path.join(out_dir, 'temp.ploidy.csv')
-        command = 'Rscript {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}'.format(os.path.join(utils.root_path(), 'run-scope.R'), bam_dir, Y_path, ref_path, gini_path, ploidy_path, nor_Y_path,self.seq, self.reg, self.ref, self.mapq, self.bin_len)
+        scope_path = os.path.join(out_dir, 'run-scope.R')
+        utils.write_scope(scope_path)
+        command = 'Rscript {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}'.format(scope_path, bam_dir, Y_path, ref_path, gini_path, ploidy_path, nor_Y_path,self.seq, self.reg, self.ref, self.mapq, self.bin_len)
         code = os.system(command)
         if code != 0:
             sys.exit(1)
