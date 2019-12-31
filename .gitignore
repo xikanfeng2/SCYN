@@ -1,1 +1,4 @@
-
+SCYN.egg-info/
+build/
+dist/
+scyn/__pycache__
