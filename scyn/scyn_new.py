@@ -149,7 +149,7 @@ class NewSCYN:
         for index in index_nor_Y:
             nor_Y.iat[index[0], index[1]] = 20
         bin_num = Y.shape[0]
-        sample_num = Y.shape[1]
+        # sample_num = Y.shape[1]
         # mBIC = pd.DataFrame(columns=np.arange(bin_num), index=np.arange(self.K), dtype=float)
         # paths = pd.DataFrame(columns=np.arange(bin_num),
         #                     index=np.arange(self.K))
@@ -196,7 +196,9 @@ class NewSCYN:
         max_k = 0
         last_col = mBIC[:, -1]
         for i in range(1, self.K):
-            if (last_col[i] - last_col[i - 1])/ last_col[i - 1] < 0.0001:
+            if last_col[i - 1] == 0:
+                continue
+            if (last_col[i] - last_col[i - 1]) / last_col[i - 1] < 0.0001:
                 break
             max_k = i
         i = max_k
@@ -205,20 +207,21 @@ class NewSCYN:
             break_points.append(paths[i][j])
             j = paths[i][j] -1 
             i = i - 1
-        break_points.append(0)
+        if break_points[-1] != 0:
+            break_points.append(0)
         break_points.reverse()
         # cal cnv for each segment
         # cnv = pd.DataFrame(columns=Y.columns, index=Y.index)
-        cnv = np.zeros(Y.shape)
+        cnv = np.zeros(Y.shape, dtype=np.int64)
         for i in range(len(break_points) - 1):
-            start = break_points[i] - 1
+            start = break_points[i]
             end = break_points[i+1] - 1
             if start == 0:
                 sum_Y = cumsum_Y[end]
                 sum_nor_Y = cumsum_nor_Y[end]
             else:
-                sum_Y = cumsum_Y[end] - cumsum_Y[start]
-                sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start]
+                sum_Y = cumsum_Y[end] - cumsum_Y[start - 1]
+                sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start - 1]
             rate = np.round((sum_Y / sum_nor_Y) * 2)
             rate[rate > 14] = 14
             if start != 0:

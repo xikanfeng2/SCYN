@@ -2,3 +2,5 @@ SCYN.egg-info/
 build/
 dist/
 scyn/__pycache__
+test.py
+run-scope.R
