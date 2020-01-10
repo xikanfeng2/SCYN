@@ -24,8 +24,6 @@ class NewSCYN:
         self.meta_info = None
         self.segments = None
         self.bin_info = None
-        self.mbic = None
-        self.paths = None
         tasklogger.set_level(verbose)
 
 
@@ -149,10 +147,6 @@ class NewSCYN:
         for index in index_nor_Y:
             nor_Y.iat[index[0], index[1]] = 20
         bin_num = Y.shape[0]
-        # sample_num = Y.shape[1]
-        # mBIC = pd.DataFrame(columns=np.arange(bin_num), index=np.arange(self.K), dtype=float)
-        # paths = pd.DataFrame(columns=np.arange(bin_num),
-        #                     index=np.arange(self.K))
         mBIC = np.zeros((self.K, bin_num))
         paths = np.zeros((self.K, bin_num), dtype=np.int64)
         loglikeijs = np.zeros((bin_num, bin_num))
@@ -211,7 +205,6 @@ class NewSCYN:
             break_points.append(0)
         break_points.reverse()
         # cal cnv for each segment
-        # cnv = pd.DataFrame(columns=Y.columns, index=Y.index)
         cnv = np.zeros(Y.shape, dtype=np.int64)
         for i in range(len(break_points) - 1):
             start = break_points[i]
@@ -224,8 +217,7 @@ class NewSCYN:
                 sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start - 1]
             rate = np.round((sum_Y / sum_nor_Y) * 2)
             rate[rate > 14] = 14
-            if start != 0:
-                start = start + 1
+            
             for j in np.arange(start, end+1):
                 cnv[j] = rate
         cnv = pd.DataFrame(cnv, columns=Y.columns, index=Y.index)

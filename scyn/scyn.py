@@ -125,6 +125,8 @@ class SCYN:
             breaks, cnv = self._cal_cnv_for_each_chrom(Y.iloc[indexes], Ynor.iloc[indexes])
             all_break_points[chrom] = breaks
             all_cnv = all_cnv.append(cnv)
+            self.mbic.to_csv(
+                '/Users/k12/Desktop/Publication/CNV/new_experiment/mbic_scyn/'+chrom+'-mbic.csv')
         self.cnv = all_cnv
         self.segments = pd.DataFrame(columns=['Chromosome', 'Start_bin_no', 'End_bin_no'])
         for chrom in keys:
@@ -172,6 +174,7 @@ class SCYN:
         k2 = 2.27
         
         for i in np.arange(self.K):
+            print(i)
             for j in np.arange(bin_num):
                 if j <= i:
                     continue
@@ -246,26 +249,27 @@ class SCYN:
             break_points.append(paths.values[i, j])
             j = paths.values[i, j] - 1
             i = i - 1
-        break_points.append(0)
+        if break_points[-1] != 0:
+            break_points.append(0)
         break_points.reverse()
+        print(break_points)
         # cal cnv for each segment
-        cnv = pd.DataFrame(columns=Y.columns, index=Y.index)
+        cnv = np.zeros(Y.shape, dtype=np.int64)
         for i in range(len(break_points) - 1):
-            start = break_points[i] - 1
+            start = break_points[i]
             end = break_points[i+1] - 1
             if start == 0:
                 sum_Y = cumsum_Y[end]
                 sum_nor_Y = cumsum_nor_Y[end]
             else:
-                sum_Y = cumsum_Y[end] - cumsum_Y[start]
-                sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start]
+                sum_Y = cumsum_Y[end] - cumsum_Y[start - 1]
+                sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start - 1]
             rate = np.round((sum_Y / sum_nor_Y) * 2)
             rate[rate > 14] = 14
-            if start != 0:
-                start = start + 1
+
             for j in np.arange(start, end+1):
-                cnv.iloc[j] = rate
-                
+                cnv[j] = rate
+        cnv = pd.DataFrame(cnv, columns=Y.columns, index=Y.index)
         return break_points, cnv
 
 
