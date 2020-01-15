@@ -196,9 +196,9 @@ class SCYN:
                     sum_nor_Y_mat = np.append(previous_sum_nor_Y_mat, [last_sum_row_nor_Y], axis=0)
 
                     # cal mbic
-                    rate_carriers = rate_mat[i+1:] - rate_mat[0:i+1]
+                    rate_carriers = rate_mat[1:] - rate_mat[:i+1]
                     rate_carriers[rate_carriers != 0] = 1
-                    avg_carriers = avg_mat[i+1:] - avg_mat[0:i+1]
+                    avg_carriers = avg_mat[1:] - avg_mat[:i+1]
                     total_carriers = avg_carriers * rate_carriers
                     max_sum = np.max(
                         np.sum(np.power(total_carriers, 2), axis=1))

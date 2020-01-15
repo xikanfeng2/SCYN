@@ -180,8 +180,7 @@ class NewSCYN:
                         mBIC[i][j] = mbic
                         paths[i][j] = index + 1
                         max_mbic = mbic
-        self.mbic = mBIC
-        self.paths = paths
+        
         # backtrack
         break_points = []
         break_points.append(bin_num)
