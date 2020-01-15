@@ -9,7 +9,7 @@ import sys
 from . import utils
 
 
-class NewSCYN:
+class SCYN:
 
     def __init__(self, seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, K=10, verbose=1):
         self.seq = seq
@@ -147,62 +147,108 @@ class NewSCYN:
         for index in index_nor_Y:
             nor_Y.iat[index[0], index[1]] = 20
         bin_num = Y.shape[0]
-        mBIC = np.zeros((self.K, bin_num))
-        paths = np.zeros((self.K, bin_num), dtype=np.int64)
-        loglikeijs = np.zeros((bin_num, bin_num))
+        sample_num = Y.shape[1]
+        mBIC = pd.DataFrame(columns=np.arange(bin_num), index=np.arange(self.K), dtype=float)
+        paths = pd.DataFrame(columns=np.arange(bin_num),
+                            index=np.arange(self.K))
+        avg_mats = np.empty((self.K + 1, bin_num), dtype=object)
+        rate_mats = np.empty((self.K + 1, bin_num), dtype=object)
+        sum_Y_mats = np.empty((self.K+1, bin_num), dtype=object)
+        sum_nor_Y_mats = np.empty((self.K+1, bin_num), dtype=object)
         cumsum_Y = np.cumsum(Y).values
         cumsum_nor_Y = np.cumsum(nor_Y).values
-        
+        init_avg_result = np.round(
+            cumsum_nor_Y/np.arange(1, bin_num+1)[:, None])
+        init_rate_result = np.round(cumsum_Y/cumsum_nor_Y * 2)
         
         for i in range(bin_num):
-            for j in range(i, bin_num):
-                if i == 0:
-                    row_sum_Y = cumsum_Y[j]
-                    row_sum_nor_Y = cumsum_nor_Y[j]
-                else:
-                    row_sum_Y = cumsum_Y[j] - cumsum_Y[i - 1]
-                    row_sum_nor_Y = cumsum_nor_Y[j] - cumsum_nor_Y[i - 1]
-                loglikeij = np.sum((1 - np.round(row_sum_Y / row_sum_nor_Y * 2) / 2) * row_sum_nor_Y
-                                    + np.log((np.round(row_sum_Y / row_sum_nor_Y * 2) + 1e-04) / 2.0001) * row_sum_Y)
-                loglikeijs[i][j] = loglikeij
+            avg_mats[0][i] = [init_avg_result[i]]
+            rate_mats[0][i] = [init_rate_result[i]]
+            sum_Y_mats[0][i] = [cumsum_Y[i]]
+            sum_nor_Y_mats[0][i] = [cumsum_nor_Y[i]]
+
+        k1 = 3/2
+        k2 = 2.27
         
-        for i in range(self.K):
-            for j in range(i + 1, bin_num):
+        for i in np.arange(self.K):
+            print(i)
+            for j in np.arange(bin_num):
+                if j <= i:
+                    continue
                 max_mbic = 0.0
 
                 # cal all possible mbics for current bin size
                 for index in np.arange(i, j):
-                    if i == 0:
-                        mbic = loglikeijs[i][index] + loglikeijs[index + 1][j]
+                    last_sum_row_Y = cumsum_Y[j] - cumsum_Y[index]
+                    last_sum_row_nor_Y = cumsum_nor_Y[j] - cumsum_nor_Y[index]
+                    last_avg_row = np.round(last_sum_row_nor_Y/(j-i))
+                    last_rate_row = np.round(last_sum_row_Y/last_sum_row_nor_Y * 2)
+                    previous_avg_mat = avg_mats[i, index]
+                    avg_mat = np.append(previous_avg_mat, [last_avg_row], axis=0)
+                    previous_rate_mat = rate_mats[i, index]
+                    rate_mat = np.append(previous_rate_mat, [last_rate_row], axis=0)
+                    previous_sum_Y_mat = sum_Y_mats[i, index]
+                    sum_Y_mat = np.append(previous_sum_Y_mat, [last_sum_row_Y], axis=0)
+                    previous_sum_nor_Y_mat = sum_nor_Y_mats[i, index]
+                    sum_nor_Y_mat = np.append(previous_sum_nor_Y_mat, [last_sum_row_nor_Y], axis=0)
+
+                    # cal mbic
+                    rate_carriers = rate_mat[1:] - rate_mat[:i+1]
+                    rate_carriers[rate_carriers != 0] = 1
+                    avg_carriers = avg_mat[1:] - avg_mat[:i+1]
+                    total_carriers = avg_carriers * rate_carriers
+                    max_sum = np.max(
+                        np.sum(np.power(total_carriers, 2), axis=1))
+                    M = np.sum(rate_carriers)
+                    pi = M / (sample_num * (i + 1))
+                    loglikeij = 0.0
+
+                    for row_index in np.arange(sum_Y_mat.shape[0]):
+                        row_sum_Y = sum_Y_mat[row_index]
+                        row_sum_nor_Y = sum_nor_Y_mat[row_index]
+                        loglikeij += np.sum((1 - np.round(row_sum_Y / row_sum_nor_Y * 2) / 2) * row_sum_nor_Y
+                                            + np.log((np.round(row_sum_Y / row_sum_nor_Y * 2) + 1e-04) / 2.0001) * row_sum_Y)
+                    term1 = loglikeij
+                    if M == 0 or term1 <= 0:
+                        term2 = 0
                     else:
-                        mbic = mBIC[i-1][index] + loglikeijs[index + 1][j]
-                    if mbic >= max_mbic:
-                        mBIC[i][j] = mbic
-                        paths[i][j] = index + 1
-                        max_mbic = mbic
+                        term2 = -M / 2 * np.log(2 * loglikeij/M)
+                    term3 = -np.log(special.binom(j+1, i + 1))
+                    term4 = -M / 2
+                    if M == 0 or max_sum == 0:
+                        term5 = 0
+                    else:
+                        term5 = -np.sum(np.log(max_sum))
+                    term6 = -(i + 1) * (k1 - k2)
+                    if pi == 0 or pi == 1:
+                        term7 = 0
+                    else:
+                        term7 = (M * np.log(pi) + (sample_num * (i + 1) - M)
+                                 * np.log(1 - pi))
+                    mbic = term1 + term2 + term3 + term4 + term5 + term6 + term7
+                    if np.isnan(mBIC.iloc[i, j]) or mbic >= max_mbic:
+                        mBIC.iloc[i, j] = mbic
+                        paths.iloc[i, j] = index + 1
+                        sum_Y_mats[i+1, j] = sum_Y_mat
+                        sum_nor_Y_mats[i+1, j] = sum_nor_Y_mat
+                        avg_mats[i+1, j] = avg_mat
+                        rate_mats[i+1, j] = rate_mat
+                        max_mbic = mbic         
         
         # backtrack
         break_points = []
         break_points.append(bin_num)
-
-        # max_k = np.argmax(mBIC[:, -1])
-        max_k = 0
-        last_col = mBIC[:, -1]
-        for i in range(1, self.K):
-            if last_col[i - 1] == 0:
-                continue
-            if (last_col[i] - last_col[i - 1]) / last_col[i - 1] < 0.0001:
-                break
-            max_k = i
+        max_k = mBIC.iloc[:, -1].idxmax()
         i = max_k
         j = paths.shape[1] - 1
         while i >= 0:
-            break_points.append(paths[i][j])
-            j = paths[i][j] -1 
+            break_points.append(paths.values[i, j])
+            j = paths.values[i, j] - 1
             i = i - 1
         if break_points[-1] != 0:
             break_points.append(0)
         break_points.reverse()
+        print(break_points)
         # cal cnv for each segment
         cnv = np.zeros(Y.shape, dtype=np.int64)
         for i in range(len(break_points) - 1):
@@ -216,7 +262,7 @@ class NewSCYN:
                 sum_nor_Y = cumsum_nor_Y[end] - cumsum_nor_Y[start - 1]
             rate = np.round((sum_Y / sum_nor_Y) * 2)
             rate[rate > 14] = 14
-            
+
             for j in np.arange(start, end+1):
                 cnv[j] = rate
         cnv = pd.DataFrame(cnv, columns=Y.columns, index=Y.index)

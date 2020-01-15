@@ -1,6 +1,6 @@
-# SCYN: a local optimal single cell CNV profiling method using dynamic programming
+# SCYN: Single cell CNV profiling method usingdynamic programming efficiently andeffectively
 
-SCYN: a local optimal single cell CNV profiling method using dynamic programming
+SCYN: Single cell CNV profiling method usingdynamic programming efficiently andeffectively
 
 ## Pre-requirements
 * python3
