@@ -84,6 +84,11 @@ def check_in(choices, **params):
 def root_path():
     return os.path.dirname(os.path.abspath(__file__))
 
+def clean_up(files):
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
+
 def write_scope(out_file):
     with open(out_file, 'w') as output:
         output.write('''

@@ -38,6 +38,35 @@ python setup.py install
 ### Quick start
 The following code runs SCYN.
 
+In command line:
+```shell
+usage: python run-scyn.py [-h] [options] -i input_bams_dir
+
+SCYN: Single cell CNV profiling method using dynamic programming efficiently
+and effectively
+
+required arguments:
+  -i, --indir   <str> the input bams directory (default: None)
+
+optional arguments:
+  -o, --outdir  <str> the output directory (default: ./)
+  --seq           <str> the reads type: single-end or paired-end. (default:
+                    single-end)
+  --bin_len       <int> the bin length, default is 500K. (default: 500)
+  --ref           <str> the reference genome version: hg19 or hg38.
+                    (default: hg19)
+  --reg           <str> the regular expression to match all BAM files in
+                    your input directory. For example, ".bam" will match all
+                    BAM files ended with '.bam'. (default: *.bam)
+  --mapq          <int> the mapping quality cutoff when calculating the
+                    reads coverage. (default: 40)
+  --K             <int> the changepoints number for each chromosome.
+                    (default: 10)
+  --verbose       <int> If > 0, print log messages. (default: 1)
+  -h, --help
+```
+
+In Python:
 ```Python
 import scyn
 

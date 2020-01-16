@@ -258,6 +258,11 @@ class SCYN:
         self.meta_info = self.meta_info.T
         self._cal_cnv(ref, Y, nor_Y)
         self.bin_info = ref
+
+        # clean up temp files
+        utils.clean_up([Y_path, nor_Y_path, ref_path,
+                        gini_path, ploidy_path, scope_path])
+
         tasklogger.log_complete('SCYN')
 
         return self
