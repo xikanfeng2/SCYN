@@ -81,6 +81,28 @@ scyn_operator.call(bam_dir, output_dir)
 scyn_operator.cnv.to_csv('your file name')
 ```
 
+### SCYN attributes
+```Python
+scyn_operator = scyn.SCYN()
+```
+ - `scyn_operator.cnv` is the copy number variants matrix.
+ - `scyn_operator.segments` is the segments for each chromosome.
+ - `scyn_operator.meta_info` is the meta information of cells, include gini and ploidy.
+
+
+
+### SCYN Output Format
+The output of `SCYN` consits of two cnv files and one meta file. 
+
+ - `cnv.csv`: with cell as row and bin as column. This file can be used as the input of Oviz-SingleCell CNV analysis.
+ - `cnv_T.csv`: with bin as column and cell as row, it is the transpose matrix of `cnv.csv`. This file can be parse by popular R packages like [`ExpressionSet`](https://www.bioconductor.org/packages/release/bioc/vignettes/Biobase/inst/doc/ExpressionSetIntroduction.pdf) for downstream analysis.
+ - `segments.csv` is the cnv segments information for each chromosome.
+ - `meta.csv`: with cell as row, and meta information as column. The default meta information is:
+   + `c_gini`: stores the gini coeficient of each cell.
+   + `c_ploidy`: stores the mean ploidy of each cell, it is calculated from `cnv.csv` (not the one SCOPE provide).
+   
+   User can manually add extra cell meta information like 'cell_type', 'cluster', or 'group' for downstream analysis. Prefix `c` here denotes numeric continuous value. The absence of prefix `c` denotes category meta information like 'group' or 'cluster'.
+
 ### Parameters
 ```Python
 SCYN(seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, K=10, verbose=1)

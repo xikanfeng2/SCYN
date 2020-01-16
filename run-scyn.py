@@ -37,5 +37,5 @@ scyn_operator.call(args.indir, args.outdir)
 # store cnv matrix to a csv file
 scyn_operator.cnv.to_csv(os.path.join(args.outdir, 'cnv.csv'))
 scyn_operator.cnv.T.to_csv(os.path.join(args.outdir, 'cnv_T.csv'))
-scyn_operator.cnv.T.to_csv(os.path.join(args.outdir, 'cnv_T.csv'))
-scyn_operator.meta.T.to_csv(os.path.join(args.outdir, 'meta.csv'))
+scyn_operator.meta_info.T.to_csv(os.path.join(args.outdir, 'meta.csv'))
+scyn_operator.segments.T.to_csv(os.path.join(args.outdir, 'segments.csv'))
