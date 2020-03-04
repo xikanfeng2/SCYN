@@ -19,8 +19,8 @@ optional.add_argument("--reg", type=str,
                       default="*.bam", help="<str> the regular expression to match all BAM files in your input directory. For example, \".bam\" will match all BAM files ended with '.bam'.", metavar="\b")
 optional.add_argument("--mapq", type=int,
                       default="40", help="<int> the mapping quality cutoff when calculating the reads coverage.", metavar="\b")
-optional.add_argument("--K", type=int,
-                      default="10", help="<int> the changepoints number for each chromosome.", metavar="\b")
+# optional.add_argument("--K", type=int,
+#                       default="10", help="<int> the changepoints number for each chromosome.", metavar="\b")
 optional.add_argument("--verbose", type=int,
                       default="1", help="<int> If > 0, print log messages.", metavar="\b")
 optional.add_argument("-h", "--help", action="help")
@@ -28,7 +28,7 @@ args = vars(parser.parse_args())
 
 # create SCYN object
 scyn_operator = scyn.SCYN(seq=args.seq, bin_len=args.bin_len,
-                          ref=args.ref, reg=args.reg, mapq=args.mapq, K=args.K, verbose=args.verbose)
+                          ref=args.ref, reg=args.reg, mapq=args.mapq, verbose=args.verbose)
 
 # call cnv
 # bam_dir is the input bam directory and output_dir is the output directory

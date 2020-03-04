@@ -1,6 +1,7 @@
-# SCYN: Single cell CNV profiling method usingdynamic programming efficiently andeffectively
+# SCYN: Single cell CNV profiling method using dynamic programming
 
-SCYN: Single cell CNV profiling method usingdynamic programming efficiently andeffectively
+SCYN: Single cell CNV profiling method using dynamic programming
+
 
 ## Pre-requirements
 * python3
@@ -60,8 +61,6 @@ optional arguments:
                     BAM files ended with '.bam'. (default: *.bam)
   --mapq          <int> the mapping quality cutoff when calculating the
                     reads coverage. (default: 40)
-  --K             <int> the changepoints number for each chromosome.
-                    (default: 10)
   --verbose       <int> If > 0, print log messages. (default: 1)
   -h, --help
 ```
@@ -105,7 +104,7 @@ The output of `SCYN` consits of two cnv files and one meta file.
 
 ### Parameters
 ```Python
-SCYN(seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, K=10, verbose=1)
+SCYN(seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, verbose=1)
 ```
 Parameters
 
@@ -124,9 +123,6 @@ Parameters
 
 * mapq : int, optional, default: 40
     The mapping quality cutoff when calculating the reads coverage
-
-* K : int, optional, default: 10
-    The predifined change points number for all chromosomes
 
 
 * verbose : `int` or `boolean`, optional, default: 1

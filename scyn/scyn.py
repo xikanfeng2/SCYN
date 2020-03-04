@@ -11,13 +11,12 @@ from . import utils
 
 class SCYN:
 
-    def __init__(self, seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, K=10, verbose=1):
+    def __init__(self, seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, verbose=1):
         self.seq = seq
         self.bin_len = bin_len
         self.ref = ref
         self.reg = reg
         self.mapq = mapq
-        self.K = K
         self.verbose = verbose
         self._check_params()
         self.cnv = None
@@ -44,8 +43,6 @@ class SCYN:
         utils.check_in(['hg19', 'hg38'], ref=self.ref)
         utils.check_int(mapq=self.mapq)
         utils.check_positive(mapq=self.mapq)
-        utils.check_int(K=self.K)
-        utils.check_positive(K=self.K)
 
 
     def set_params(self, **params):
@@ -100,9 +97,6 @@ class SCYN:
         if 'mapq' in params and params['mapq'] != self.mapq:
             self.mapq = params['mapq']
             del params['mapq']
-        if 'K' in params and params['K'] != self.K:
-            self.K = params['K']
-            del params['K']
         if 'verbose' in params:
             self.verbose = params['verbose']
             tasklogger.set_level(self.verbose)
