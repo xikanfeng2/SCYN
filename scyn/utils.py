@@ -1,6 +1,7 @@
 import numbers
 import pandas as pd
 import numpy as np
+import pysam
 import os
 
 def check_positive(**params):
@@ -165,3 +166,44 @@ fGC.hat.sim <- normObj.scope.sim$fGC.hat[[which.max(normObj.scope.sim$BIC)]]
 
 write.csv(Yhat.sim, args[6])
 ''')
+
+
+def demultiplex_10X_bam(info_file, bam_file, out_dir):
+    """demultiplex 10X merged bam file according to barcode
+    Parameters
+    ----------
+    info_file : the sample summary info file
+    bam_file : the merged bam file path
+    out_dir : output directory
+    """
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    info = pd.read_csv(info_file)
+    samples = list(info['barcode'])
+
+    fin = pysam.AlignmentFile(bam_file, 'rb')
+
+    fouts = {}
+
+    for sample in samples:
+        fout = pysam.AlignmentFile(os.path.join(
+            out_dir, sample+'.bam'), 'wb', template=fin)
+        fouts[sample] = fout
+
+    for read in fin:
+        tags = read.tags
+        cell_barcode = None
+        CB_list = [x for x in tags if x[0] == "CB"]
+        if CB_list:
+            cell_barcode = CB_list[0][1]
+        # the bam files may contain reads not in the final clustered barcodes
+        # will be None if the barcode is not in the clusters.csv file
+        else:
+            continue
+        if cell_barcode and cell_barcode in samples:
+            fouts[cell_barcode].write(read)
+
+    fin.close()
+    for fout in fouts.values():
+        fout.close()

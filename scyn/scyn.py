@@ -307,12 +307,8 @@ class SCYN:
             mbic = self._cal_mbic(Y, nor_Y, segs)
             break_points_of_all_k.append(break_points)
             mbic_of_all_k.append(mbic)
-        # print(max(mbic_of_all_k))
         max_mbic_index = mbic_of_all_k.index(max(mbic_of_all_k))
-        # print(max_mbic_index)
         break_points = break_points_of_all_k[max_mbic_index]
-        last_col = mBIC[:, -1]
-        print(last_col[max_mbic_index])
         # cal cnv for each segment
         index_Y = np.column_stack(np.where(Y <= 20))
         for index in index_Y:

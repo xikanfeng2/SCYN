@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="SCYN",
-    version="1.0.5",
+    version="1.0.6",
     author="Xikang Feng",
     author_email="xikanfeng2@gmail.com",
     description="SCYN: Single cell CNV profiling method using dynamic programming",

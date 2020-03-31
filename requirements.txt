@@ -2,3 +2,4 @@ numpy>=1.16.1
 pandas>=0.23.4,<0.24
 tasklogger>=0.4.0
 scipy>=1.3.0
+pysam>=0.15.3

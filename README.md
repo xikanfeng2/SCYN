@@ -9,6 +9,7 @@ SCYN: Single cell CNV profiling method using dynamic programming
 * pandas>=0.23.4,<0.24
 * tasklogger>=0.4.0
 * scipy>=1.3.0
+* pysam>=0.15.3
 * [SCOPE](https://github.com/rujinwang/SCOPE)
 
 
@@ -79,6 +80,19 @@ scyn_operator.call(bam_dir, output_dir)
 # store cnv matrix to a csv file
 scyn_operator.cnv.to_csv('your file name')
 ```
+
+For 10X merged BAM(One bam file), SCYN provides the function to split merged bam to cell bams based on the barcodes.
+
+```Python
+import scyn
+scyn.demultiplex_10X_bam(info_file, bam_file, out_dir)
+```
+This function demultiplexs 10X merged bam file according to barcode
+Parameters:
+ - info_file : the sample summary info file. Please refer to the 10X websites [breast_tissue_A_2k_per_cell_summary_metrics.csv](http://cf.10xgenomics.com/samples/cell-dna/1.1.0/breast_tissue_A_2k/breast_tissue_A_2k_per_cell_summary_metrics.csv)
+ - bam_file : the merged bam file path.
+ - out_dir : output directory. The splited bams will be saved in this directory, named as `cell-barcode`.bam. cell-barcode is the barcode of each cell.
+
 
 ### SCYN attributes
 ```Python
