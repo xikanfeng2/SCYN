@@ -11,7 +11,7 @@ from . import utils
 
 class SCYN:
 
-    def __init__(self, seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, verbose=1):
+    def __init__(self, seq='single-end', bin_len=500, ref='hg19', reg='*.bam', mapq=40, K=None, verbose=1):
         self.seq = seq
         self.bin_len = bin_len
         self.ref = ref
@@ -23,6 +23,7 @@ class SCYN:
         self.meta_info = None
         self.segments = None
         self.bin_info = None
+        self.K = K
         tasklogger.set_level(verbose)
 
 
@@ -307,7 +308,10 @@ class SCYN:
             mbic = self._cal_mbic(Y, nor_Y, segs)
             break_points_of_all_k.append(break_points)
             mbic_of_all_k.append(mbic)
-        max_mbic_index = mbic_of_all_k.index(max(mbic_of_all_k))
+        if self.K:
+            max_mbic_index = self.K - 2
+        else:
+            max_mbic_index = mbic_of_all_k.index(max(mbic_of_all_k))
         break_points = break_points_of_all_k[max_mbic_index]
         # cal cnv for each segment
         index_Y = np.column_stack(np.where(Y <= 20))
