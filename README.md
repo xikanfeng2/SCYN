@@ -144,6 +144,8 @@ Parameters
     If `True` or `> 0`, print status messages
 
 ## Cite us
+Feng, X., Chen, L., Qing, Y., Li, R., Li, C., & Li, S. C. (2021). SCYN: single cell CNV profiling method using dynamic programming. BMC genomics, 22(5), 1-13.
+[Full text](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07941-3)
 
 ## Help
 If you have any questions or require assistance using SCYN, please contact us with xikanfeng2@gmail.com.
